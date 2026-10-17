@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Target, TrendingUp, Trophy, History, Trash2, Dumbbell, Beer, Calendar } from 'lucide-react';
-import { deleteActivity, fetchActivitiesByDate, resetAllStats } from '@/actions/activities';
+import { deleteActivity, fetchActivitiesByDate, resetStats } from '@/actions/activities';
 import { type ResetPeriod } from '@/actions/activities'; 
+import DangerZone from './DangerZone';
 
 
 
@@ -15,34 +16,10 @@ type Activity = {
   created_at: string;
 };
 
-const [isResetting, setIsResetting] = useState(false);
-const [resettingPeriod, setResettingPeriod] = useState<ResetPeriod | null>(null);
+//const [isResetting, setIsResetting] = useState(false);
+//const [resettingPeriod, setResettingPeriod] = useState<ResetPeriod | null>(null);
 
-const handleReset = async (period: ResetPeriod) => {
-  const periodNames = {
-    today: 'ЗА СЕГОДНЯ',
-    week: 'ЗА ПОСЛЕДНИЕ 7 ДНЕЙ',
-    month: 'ЗА ЭТОТ МЕСЯЦ',
-    all: 'АБСОЛЮТНО ВСЮ'
-  };
 
-  const isConfirmed = window.confirm(
-    `Ты уверен, что хочешь удалить ${periodNames[period]} статистику? Это нельзя отменить.`
-  );
-
-  if (!isConfirmed) return;
-
-  setResettingPeriod(period);
-  
-  const result = await resetAllStats(period);
-  
-  if (result.success) {
-    window.location.reload(); // Перезагружаем, чтобы получить чистые данные
-  } else {
-    alert('Ошибка при удалении: ' + result.error);
-    setResettingPeriod(null);
-  }
-};
 
 // --- КОМПОНЕНТ ГРУППИРОВКИ И ТЕПЛОВОЙ ШКАЛЫ ---
 
@@ -488,45 +465,7 @@ export default function ProfileClient({ initialActivities, username }: { initial
         </div>
       </div>
 
-      <div className="mt-12 pt-6 border-t border-red-900/30">
-  <h3 className="text-red-500/50 text-xs uppercase tracking-widest mb-4">Danger Zone: Сброс логов</h3>
-  
-  <div className="grid grid-cols-2 gap-2 mb-2">
-    <button
-      onClick={() => handleReset('today')}
-      disabled={resettingPeriod !== null}
-      className="py-3 rounded-lg border border-red-500/20 text-red-400 uppercase tracking-wider text-xs font-bold bg-transparent hover:bg-red-500/10 active:bg-red-500/20 transition-colors disabled:opacity-30"
-    >
-      {resettingPeriod === 'today' ? 'Удаление...' : 'За сегодня'}
-    </button>
-    
-    <button
-      onClick={() => handleReset('week')}
-      disabled={resettingPeriod !== null}
-      className="py-3 rounded-lg border border-red-500/20 text-red-400 uppercase tracking-wider text-xs font-bold bg-transparent hover:bg-red-500/10 active:bg-red-500/20 transition-colors disabled:opacity-30"
-    >
-      {resettingPeriod === 'week' ? 'Удаление...' : 'За 7 дней'}
-    </button>
-  </div>
-
-      <div className="grid grid-cols-2 gap-2">
-          <button
-          onClick={() => handleReset('month')}
-          disabled={resettingPeriod !== null}
-          className="py-3 rounded-lg border border-red-500/20 text-red-400 uppercase tracking-wider text-xs font-bold bg-transparent hover:bg-red-500/10 active:bg-red-500/20 transition-colors disabled:opacity-30"
-          >
-            {resettingPeriod === 'month' ? 'Удаление...' : 'За месяц'}
-          </button>
-          
-          <button
-            onClick={() => handleReset('all')}
-            disabled={resettingPeriod !== null}
-            className="py-3 rounded-lg border border-red-500/50 text-red-500 uppercase tracking-wider text-xs font-bold bg-red-500/5 hover:bg-red-500/20 active:bg-red-500/30 transition-colors disabled:opacity-30"
-          >
-            {resettingPeriod === 'all' ? 'Сжигаем...' : 'Всё время'}
-          </button>
-        </div>
-      </div>
+          <DangerZone />
 
     </div>
   );

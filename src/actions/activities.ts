@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 
 export type ResetPeriod = 'all' | 'month' | 'week' | 'today';
 
-export async function resetAllStats(period: ResetPeriod) {
+export async function resetStats(period: ResetPeriod) {
   const cookieStore = await cookies();
   
   const supabase = createServerClient(
