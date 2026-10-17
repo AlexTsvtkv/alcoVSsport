@@ -69,19 +69,29 @@ export default function TickerTapeClient({ broadcasts, isVisible }: Props) {
   });
 
   return (
-    <div className="sticky top-0 w-full bg-black border-b border-neutral-900 overflow-hidden py-3.5 relative flex z-50 shrink-0 shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
-      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black to-transparent z-10" />
-      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black to-transparent z-10" />
+    <>
+      {/* 
+        ВАЖНО: Так как fixed вырывает элемент из потока документа (он перестает занимать место),
+        нам нужен невидимый блок-распорка такой же высоты (pt-12 или h-12), 
+        чтобы контент дашборда не уехал ПОД бегущую строку сразу при загрузке.
+      */}
+      <div className="h-11 w-full shrink-0"></div>
 
-      {/* Я немного увеличил размер текста с text-[10px] до text-xs для читаемости */}
-      <div className="flex whitespace-nowrap animate-marquee text-xs">
-        <div className="flex shrink-0 px-2 items-center">
-          {tapeContent}
-        </div>
-        <div className="flex shrink-0 px-2 items-center">
-          {tapeContent}
+      {/* Сама бегущая строка с fixed */}
+      <div className="fixed top-0 left-0 right-0 w-full bg-black border-b border-neutral-900 overflow-hidden py-3.5 flex z-[100] shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
+        
+        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black to-transparent z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black to-transparent z-10" />
+
+        <div className="flex whitespace-nowrap animate-marquee text-xs">
+          <div className="flex shrink-0 px-2 items-center">
+            {tapeContent}
+          </div>
+          <div className="flex shrink-0 px-2 items-center">
+            {tapeContent}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

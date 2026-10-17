@@ -170,7 +170,7 @@ const handleShare = async () => {
   };
 
   return (
-    <div className=" text-white p-4 font-sans flex flex-col justify-between  relative overflow-hidden pb-8">
+    <div className=" text-white p-4 font-sans flex flex-col justify-between  relative pb-8">
       
       {/* Шапка */}
       <div className="flex justify-between items-center mb-6 pt-2">
