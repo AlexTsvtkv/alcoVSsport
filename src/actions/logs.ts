@@ -3,7 +3,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 
 export async function addLog(
   type: 'sport' | 'drink',
@@ -20,7 +19,7 @@ export async function addLog(
         getAll() {
           return cookieStore.getAll();
         },
-        setAll() {}, // В Server Actions мы только читаем сессию, обновлять не нужно
+        setAll() {}, // В Server Actions мы только читаем сессию
       },
     }
   );
@@ -32,22 +31,26 @@ export async function addLog(
     throw new Error('Пользователь не авторизован');
   }
 
-  // Высчитываем реальную дату события в зависимости от выбора юзера
+  // Высчитываем реальную дату события с сохранением времени (чтобы логи не слипались в одну секунду)
   const eventDate = new Date();
+  
   if (dayOffset === 'yesterday') {
     eventDate.setDate(eventDate.getDate() - 1);
   } else if (dayOffset === 'week') {
-    // Условно отнимаем 3 дня (или можно просто оставить текущую дату, 
-    // если логика "на неделе" значит просто "в этом месяце")
-    eventDate.setDate(eventDate.getDate() - 3); 
+    // Делаем "позавчера" (минус 2 дня)
+    eventDate.setDate(eventDate.getDate() - 2); 
   }
 
-  // Вставляем данные в Supabase
+  // Вставляем данные в Supabase.
+  // ВАЖНО: Записываем дату прямо в created_at в формате ISO, 
+  // чтобы она переопределила дефолтное значение базы (now()).
   const { error } = await supabase.from('activities').insert({
     user_id: user.id,
     type: type,
     intensity_level: intensityLevel,
-    event_date: eventDate.toISOString().split('T')[0], // Формат YYYY-MM-DD
+    created_at: eventDate.toISOString(), // Записываем точное время с учетом смещения дней
+    // Если у тебя в базе есть обязательная колонка event_date, можешь оставить и её:
+    // event_date: eventDate.toISOString().split('T')[0], 
   });
 
   if (error) {
@@ -55,10 +58,7 @@ export async function addLog(
     throw new Error('Не удалось сохранить вайб');
   }
 
-  // Принудительно обновляем кэш главной страницы, чтобы новые данные сразу отобразились
+  // Принудительно обновляем кэш главной страницы и профиля
   revalidatePath('/');
   revalidatePath('/profile');
-  
-  // Возвращаем юзера на главную
-  //redirect('/');
 }

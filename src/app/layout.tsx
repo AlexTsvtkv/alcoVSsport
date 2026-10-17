@@ -36,7 +36,7 @@ export default function RootLayout({
     <html lang="ru">
       <body className={`${inter.className} bg-black min-h-screen flex justify-center`}>
         {/* Ограничивающий контейнер приложения */}
-        <main className="w-full max-w-md bg-[#0D0F12] min-h-screen relative flex flex-col shadow-2xl border-x border-neutral-900 overflow-hidden">
+        <main className="w-full  max-w-md bg-[#0D0F12] min-h-screen relative flex flex-col shadow-2xl border-x border-neutral-900 overflow-hidden">
           
           {/* Бегущая строка теперь живет внутри мобильного контейнера */}
           <TickerTape />
