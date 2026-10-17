@@ -20,7 +20,10 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true, // Важно для iOS
     statusBarStyle: "black-translucent",
-    title: "Tracker",
+    title: "Alco-vs-Sport",
+  },
+  icons: {
+    apple: "/icon-192x192.png", // <--- ОБЯЗАТЕЛЬНО ДЛЯ АЙФОНОВ
   },
 };
 

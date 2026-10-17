@@ -1,4 +1,14 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ЗАПРЕТ БЕЛЫХ ПОЛОС ПРИ СКРОЛЛЕ */
+html, body {
+  background-color: #0D0F12 !important; /* Наш брутальный черный цвет */
+  overscroll-behavior-y: none; /* Запрещаем "резиновый" скролл всего экрана */
+  -webkit-tap-highlight-color: transparent; /* Убираем синее выделение кнопок при тапе */
+}
 
 :root {
   --background: #ffffff;
