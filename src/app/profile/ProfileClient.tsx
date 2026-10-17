@@ -331,27 +331,72 @@ export default function ProfileClient({ initialActivities, username }: { initial
   const [period, setPeriod] = useState<'week' | 'month' | 'year'>('week');
   const [viewMode, setViewMode] = useState<'quantity' | 'intensity'>('intensity');
 
-  // Матрица данных (оставил твою)
-  const statsData = {
-    week: {
-      index: 1.25, status: 'Спортивный акцент', color: 'text-[#00FF66]',
-      quantity: { sportMain: '4', sportSub: 'тренировки', barMain: '2', barSub: 'тусовки' },
-      intensity: { sportMain: 'Режим зверя', sportSub: 'Чаще всего', barMain: 'Нормально так', barSub: 'Чаще всего' }
-    },
-    month: {
-      index: 0.67, status: 'Уклон в гедонизм', color: 'text-[#FF6B00]',
-      quantity: { sportMain: '12', sportSub: 'тренировок', barMain: '15', barSub: 'дней в баре' },
-      intensity: { sportMain: 'Рабочий пот', sportSub: 'Чаще всего', barMain: 'В хлам', barSub: 'Чаще всего' }
-    },
-    year: {
-      index: 1.05, status: 'Идеальный баланс', color: 'text-neutral-300',
-      quantity: { sportMain: '142', sportSub: 'тренировки', barMain: '138', barSub: 'тусовок' },
-      intensity: { sportMain: 'Размял кости', sportSub: 'Чаще всего', barMain: 'Душа понеслась', barSub: 'Чаще всего' }
+  // УМНАЯ ФИЛЬТРАЦИЯ ПО ПЕРИОДАМ
+  const now = new Date();
+  const filteredActivities = initialActivities.filter((activity) => {
+    const activityDate = new Date(activity.created_at);
+    if (period === 'week') {
+      const weekAgo = new Date(now);
+      weekAgo.setDate(now.getDate() - 7);
+      return activityDate >= weekAgo;
     }
-  };
+    if (period === 'month') {
+      const monthAgo = new Date(now);
+      monthAgo.setMonth(now.getMonth() - 1);
+      return activityDate >= monthAgo;
+    }
+    return true; // year (в нашем случае берет всё, так как лимит 30 дней стоит на сервере)
+  });
 
-  const currentStats = statsData[period];
-  const displayData = currentStats[viewMode];
+  // ПОДСЧЕТ КОЛИЧЕСТВА
+  const sportActivities = filteredActivities.filter(a => a.type === 'sport');
+  const barActivities = filteredActivities.filter(a => a.type === 'drink' || a.type === 'bar');
+  
+  const sportCount = sportActivities.length;
+  const barCount = barActivities.length;
+
+  // РАСЧЕТ ИНДЕКСА (Спорт делим на Бар)
+  const calculateIndex = () => {
+    if (sportCount === 0 && barCount === 0) return 0;
+    if (barCount === 0) return sportCount; // Если бара нет, индекс равен кол-ву спорта
+    return sportCount / barCount;
+  };
+  const realIndex = calculateIndex();
+
+  // ПОДСЧЕТ ИНТЕНСИВНОСТИ (Вайб)
+  const avgSportIntensity = sportCount > 0 
+    ? sportActivities.reduce((sum, a) => sum + (a.intensity_level || 0), 0) / sportCount 
+    : 0;
+    
+  const avgBarIntensity = barCount > 0 
+    ? barActivities.reduce((sum, a) => sum + (a.intensity_level || 0), 0) / barCount 
+    : 0;
+
+  // ТЕКСТОВЫЕ СТАТУСЫ ДЛЯ ИНТЕНСИВНОСТИ
+  const getSportVibe = (val: number) => val > 7 ? 'Режим зверя' : val > 4 ? 'Рабочий пот' : 'Размял кости';
+  const getBarVibe = (val: number) => val > 7 ? 'В хлам' : val > 4 ? 'Нормально так' : 'Культурно';
+
+  // ДИНАМИЧЕСКИЙ СТАТУС И ЦВЕТ ИНДЕКСА
+  let realStatus = "Идеальный баланс";
+  let statusColor = "text-neutral-300";
+
+  if (realIndex > 1.2) {
+    realStatus = "Спортивный акцент";
+    statusColor = "text-[#00FF66]";
+  } else if (realIndex > 0 && realIndex < 0.8) {
+    realStatus = "Уклон в гедонизм";
+    statusColor = "text-[#FF6B00]";
+  } else if (sportCount === 0 && barCount === 0) {
+    realStatus = "Нет данных";
+  }
+
+  // ПОДГОТОВКА ДАННЫХ ДЛЯ ОТОБРАЖЕНИЯ (Заменяем хардкод)
+  const displayData = {
+    sportMain: viewMode === 'quantity' ? sportCount.toString() : getSportVibe(avgSportIntensity),
+    sportSub: viewMode === 'quantity' ? 'тренировок' : 'Средний вайб',
+    barMain: viewMode === 'quantity' ? barCount.toString() : getBarVibe(avgBarIntensity),
+    barSub: viewMode === 'quantity' ? 'тусовок' : 'Средний вайб'
+  };
 
   return (
     <div className="text-white p-4 font-sans flex flex-col relative pb-10">
@@ -407,12 +452,12 @@ export default function ProfileClient({ initialActivities, username }: { initial
       <div className="bg-[#16191E] border border-neutral-800 rounded-3xl p-6 mb-6 flex flex-row items-center justify-between">
         <div>
           <p className="text-neutral-400 text-xs uppercase tracking-widest font-bold mb-1">Синтетический Индекс</p>
-          <span className={`text-sm font-bold uppercase tracking-wider transition-colors ${currentStats.color}`}>
-            {currentStats.status}
+          <span className={`text-sm font-bold uppercase tracking-wider transition-colors ${statusColor}`}>
+            {realStatus}
           </span>
         </div>
         <div className="text-4xl font-black transition-all">
-          {currentStats.index.toFixed(2)}
+          {realIndex.toFixed(2)}
         </div>
       </div>
 
