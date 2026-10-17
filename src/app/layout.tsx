@@ -1,13 +1,27 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import TickerTape from "@/components/TickerTape";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
+export const viewport: Viewport = {
+  themeColor: "#0D0F12",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false, // Отключаем зум, чтобы было похоже на нативное приложение
+};
+
 export const metadata: Metadata = {
   title: "Alco vs Sport",
   description: "Баланс твоей жизни",
+  manifest: "/manifest.json", // Ссылка на наш манифест
+  appleWebApp: {
+    capable: true, // Важно для iOS
+    statusBarStyle: "black-translucent",
+    title: "Tracker",
+  },
 };
 
 export default function RootLayout({

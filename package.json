@@ -1,7 +1,6 @@
 {
   "name": "alco-vs-sport",
   "version": "0.1.0",
-  
   "private": true,
   "scripts": {
     "dev": "next dev",
