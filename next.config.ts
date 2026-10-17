@@ -7,6 +7,7 @@ const config: NextConfig = {
     // Игнорировать ошибки проверки типов на Vercel при сборке
     ignoreBuildErrors: true,
   },
+  turbopack: {},
   // ...остальные ваши настройки (например, для PWA)
 };
 
